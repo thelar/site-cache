@@ -7,7 +7,9 @@ app.get(root, (req, res) => {
 });
 
 app.get(root + '/start', (req, res) => {
-    res.send('Start called');
+    res.json({
+        "message": "started"
+    });
 });
 
 app.listen(3000, function () {
