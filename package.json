@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/thelar/site-cache/issues"
   },
-  "homepage": "https://github.com/thelar/site-cache#readme"
+  "homepage": "https://github.com/thelar/site-cache#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
