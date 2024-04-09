@@ -1,0 +1,24 @@
+{
+  "name": "site-cache",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelar/site-cache.git"
+  },
+  "keywords": [
+    "4x4tyres",
+    "transients",
+    "node.js"
+  ],
+  "author": "Kevin Price-Ward",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/thelar/site-cache/issues"
+  },
+  "homepage": "https://github.com/thelar/site-cache#readme"
+}
