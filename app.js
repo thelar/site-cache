@@ -13,6 +13,10 @@ app.get(root + '/start', (req, res) => {
     });
 });
 
+app.get(root + '/console', function(req, res) {
+    res.sendFile('index.html', { root: __dirname });
+});
+
 server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
