@@ -1,5 +1,6 @@
-const express = require('express');
-const app = express();
+require('dotenv').config();
+const app = require('express')();
+const server = require('http').createServer(app);
 const root = '/site-cache';
 
 app.get(root, (req, res) => {
