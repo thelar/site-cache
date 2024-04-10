@@ -8,6 +8,10 @@ app.get(root, (req, res) => {
     res.send('Hello World!');
 });
 
+app.get(root + '/console', function(req, res) {
+    res.sendFile('index.html', { root: __dirname });
+});
+
 app.get(root + '/start', (req, res) => {
     res.json({
         "message": "started"
