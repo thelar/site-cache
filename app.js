@@ -1,6 +1,7 @@
 require('dotenv').config();
 const app = require('express')();
 const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 const root = '/site-cache';
 
 app.get(root, (req, res) => {
@@ -15,6 +16,13 @@ app.get(root + '/start', (req, res) => {
 
 app.get(root + '/console', function(req, res) {
     res.sendFile('index.html', { root: __dirname });
+});
+
+io.on('connection', (socket) => {
+    console.log('user connected');
+    socket.on('disconnect', function () {
+        console.log('user disconnected');
+    });
 });
 
 server.listen(3000, function () {
