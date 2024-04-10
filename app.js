@@ -28,16 +28,6 @@ app.get(root + '/console', function(req, res) {
     res.sendFile('index.html', { root: __dirname });
 });
 
-app.get(root + '/start', (req, res) => {
-    res.json({
-        "message": "started"
-    });
-});
-
-app.get(root + '/console', function(req, res) {
-    res.sendFile('index.html', { root: __dirname });
-});
-
 io.on('connection', (socket) => {
     console.log('user connected');
     socket.on('disconnect', function () {
@@ -45,6 +35,6 @@ io.on('connection', (socket) => {
     });
 });
 
-app.listen(3000, function () {
+server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
