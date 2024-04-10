@@ -2,7 +2,7 @@ require('dotenv').config();
 const app = require('express')();
 const root = '/site-cache';
 const axios = require('axios');
-const path_to_ajax = process.env.NODE_ENV==='development'?'https://4x4tyres.localhost/':'/';
+const path_to_ajax = process.env.NODE_ENV==='development'?'https://4x4tyres.localhost/':'https://4x4tyes.co.uk/';
 
 app.get(root + '/start', (req, res) => {
     const sendGetRequest = async() => {
