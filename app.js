@@ -19,7 +19,7 @@ app.get(root + '/start', (req, res) => {
 });
 
 app.get(root, (req, res) => {
-    res.send('Hello World! ENV is: ' + process.env.NODE_ENV);
+    res.send('Hello World! ENV is: ' + process.env.NODE_ENV + '<br/>' + 'Path to ajax is: ' + path_to_ajax);
 });
 
 app.listen(3000, function () {
