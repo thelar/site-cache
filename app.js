@@ -7,7 +7,7 @@ app.get(root, (req, res) => {
     res.send('Hello World!');
 });
 
-app.get('/start', (req, res) => {
+app.get(root + '/start', (req, res) => {
     res.json({
         "message": "started"
     });
