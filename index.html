@@ -2,12 +2,13 @@
 <html>
 <head>
     <title>Test HTML file</title>
-    <script src="/testapp/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script
             src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <script>
+        let socket = io();
         $(document).ready(function($) {
             let $status = $('#status');
             $status.text('Loaded');
