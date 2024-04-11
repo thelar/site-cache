@@ -14,7 +14,7 @@
             // This just calls /status endpoint every 2 seconds and sets the #status readout
             setInterval(() => {
                 $.ajax({
-                    url: '/status',
+                    url: '/testapp/status',
                     type: 'POST',
                     dataType: 'json',
                     success: function (response) {
