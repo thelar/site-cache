@@ -4,17 +4,18 @@ let status = 'Waiting';
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const base = '/sitecache';
 const io = new Server(server);
 
-app.get('/testapp/test', (req, res) => {
+app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
 });
 
-app.get('/testapp', (req, res) => {
+app.get(base, (req, res) => {
     res.send('Hello World! ENV is: ' + process.env.NODE_ENV);
 });
 
-app.post('/testapp/status', (req, res) => {
+app.post(base + '/status', (req, res) => {
     res.json({
         status: status,
     });
