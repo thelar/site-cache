@@ -7,7 +7,7 @@ app.get('/testapp/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
 });
 
-app.get('/', (req, res) => {
+app.get('/testapp', (req, res) => {
     res.send('Hello World! ENV is: ' + process.env.NODE_ENV);
 });
 
