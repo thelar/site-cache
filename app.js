@@ -3,7 +3,7 @@ const app = require('express')();
 let status = 'Waiting';
 
 
-app.get('/test', (req, res) => {
+app.get('/testapp/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
 });
 
@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
     res.send('Hello World! ENV is: ' + process.env.NODE_ENV);
 });
 
-app.post('/status', (req, res) => {
+app.post('/testapp/status', (req, res) => {
     res.json({
         status: status,
     });
