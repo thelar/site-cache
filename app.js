@@ -1,7 +1,10 @@
 require('dotenv').config();
 const app = require('express')();
 let status = 'Waiting';
-
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 app.get('/testapp/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -17,7 +20,11 @@ app.post('/testapp/status', (req, res) => {
     });
 });
 
-app.listen(3000, function () {
+io.on('connection', (socket) => {
+    console.log('a user connected');
+});
+
+server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
