@@ -1,10 +1,29 @@
 require('dotenv').config();
 const app = require('express')();
-const root = '/site-cache';
-const axios = require('axios');
-const path_to_ajax = process.env.NODE_ENV==='development'?'https://4x4tyres.localhost/':'https://4x4tyres.co.uk/';
+let status = 'Waiting';
 
-app.get(root + '/start', (req, res) => {
+
+app.get('/test', (req, res) => {
+    res.sendFile('index.html', { root: __dirname });
+});
+
+app.get('/', (req, res) => {
+    res.send('Hello World! ENV is: ' + process.env.NODE_ENV);
+});
+
+app.post('/status', (req, res) => {
+    res.json({
+        status: status,
+    });
+});
+
+app.listen(3000, function () {
+    console.log('Example app listening on port 3000!');
+});
+
+
+
+/*app.get('/start', (req, res) => {
     const sendGetRequest = async() => {
         try {
             const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
@@ -16,12 +35,4 @@ app.get(root + '/start', (req, res) => {
         }
     }
     sendGetRequest();
-});
-
-app.get(root, (req, res) => {
-    res.send('Hello World! ENV is: ' + process.env.NODE_ENV + '<br/>' + 'Path to ajax is: ' + path_to_ajax);
-});
-
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
-});
+});*/

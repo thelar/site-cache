@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cache Console</title>
+    <title>Test HTML file</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function($) {
+            let $status = $('#status');
+            $status.text('Loaded');
+
+            // This just calls /status endpoint every 2 seconds and sets the #status readout
+            setInterval(() => {
+                $.ajax({
+                    url: '/status',
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if(response.status){
+                            $status.text(response.status);
+                        }
+                    },
+                });
+            }, 2000);
+        });
+    </script>
 </head>
-<script src = "/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
-    socket.on('console-broadcast', message => {
-        console.log('From server: ', message)})
-</script>
-<body>Integrating Socket.io with Node.js and Express</body>
+<body>
+    <div id="status">Loading...</div>
+</body>
 </html>
