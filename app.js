@@ -23,11 +23,18 @@ app.post(base + '/status', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('a user connected');
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
 });
 
 server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
+
+setInterval(() => {
+    io.emit('status_broadcast', 'ping')
+}, 1000);
 
 
 
