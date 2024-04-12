@@ -8,30 +8,11 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <script>
-
         try{
             let socket = io();
         }catch(err){
             console.log('socket.io could not be initialized');
         }
-        $(document).ready(function($) {
-            let $status = $('#status');
-            $status.text('Loaded');
-
-            // This just calls /status endpoint every 2 seconds and sets the #status readout
-            setInterval(() => {
-                $.ajax({
-                    url: '/sitecache/status',
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        if(response.status){
-                            $status.text(response.status);
-                        }
-                    },
-                });
-            }, 2000);
-        });
     </script>
 </head>
 <body>
