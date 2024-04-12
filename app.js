@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
     });
 
     setInterval(() => {
-        socket.emit('status_broadcast', {message: 'ping'})
+        socket.emit('status_broadcast', 'ping')
     }, 1000);
 });
 
