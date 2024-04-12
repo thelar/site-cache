@@ -26,15 +26,16 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+
+    setInterval(() => {
+        socket.emit('status_broadcast', {message: 'ping'})
+    }, 1000);
 });
 
 server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-setInterval(() => {
-    io.emit('status_broadcast', 'ping')
-}, 1000);
 
 
 
