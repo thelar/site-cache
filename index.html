@@ -8,19 +8,30 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <script>
-        try{
-            let socket = io();
-            socket.on('status_broadcast', function(msg) {
-                console.log(msg);
+        jQuery(document).ready(($) => {
+            let $status = $('#status');
+            let $start = $('#start');
+
+            try{
+                let socket = io();
+                socket.on('status_broadcast', function(msg) {
+                    console.log(msg);
+                    $status.text(msg.status);
+                });
+            }catch(err){
+                console.log('socket.io could not be initialized');
+            }
+
+            $start.on('click', () => {
+                console.log('start clicked');
+                $start.prop('disabled', true);
             });
-        }catch(err){
-            console.log('socket.io could not be initialized');
-        }
+        });
     </script>
 </head>
 <body>
     <div id="status">Loading...</div>
 
-    <button id="start"
+    <button id="start" type="button">Start</button>
 </body>
 </html>
