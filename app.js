@@ -7,7 +7,7 @@ const { Server } = require("socket.io");
 const axios = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
-const path_to_ajax = 'https://4x4tyres.co.uk/';
+const path_to_ajax = process.env === 'production' ? 'https://4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -82,10 +82,33 @@ function get_manufacturers(){
     const sendGetRequest = async() => {
         try {
             const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
-            app_console('SUCCESS: ' + resp.data.manufacturers);
+            if(resp.status===200&&resp.data.results.status==='success'){
+                app_console('SUCCESS');
+                let manufacturers = [];
+                for(let manufacturer_id in resp.data.results.manufacturers){
+                    app_console(`${resp.data.results.manufacturers[manufacturer_id].name}: ${manufacturer_id}`);
+                    get_chassis(manufacturer_id);
+                }
+            }else{
+                if(resp.status!==200){
+                    app_console(`ERROR: axios request returned a status of ${resp.status}`);
+                }else{
+                    app_console(`ERROR: ${resp.data.results.action} - ${resp.data.results.error}`);
+                }
+            }
         }catch(err){
             app_console('ERROR: ' + err.code);
         }
     }
     sendGetRequest();
+}
+
+async function get_chassis(manufacturer_id){
+    const resp = await axios.get(path_to_ajax + `fbf_cache?action=get_chassis&id=${manufacturer_id}`);
+    if(resp.status===200&&resp.data.results.status==='success'){
+        app_console(`Chassis for manufacturer ID: ${manufacturer_id}`);
+        resp.data.results.chassis.forEach(chassis => {
+            app_console(`${chassis.display_name} (Chassis ID - ${chassis.id})`);
+        });
+    }
 }
