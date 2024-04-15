@@ -79,6 +79,7 @@ function stop(){
 
 function get_manufacturers(){
     app_console('Getting manufacturers');
+    app_console('Path to ajax: ' + path_to_ajax);
     const sendGetRequest = async() => {
         try {
             const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
