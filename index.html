@@ -27,7 +27,7 @@
                 });
                 socket.on('console_update', (msg) => {
                     let currentDate = '[' + new Date().toUTCString() + '] ';
-                    let $line = $(`<p>[${currentDate}] - ${msg}</p>`);
+                    let $line = $(`<p style="margin: 0;"><code>${currentDate} - ${msg}</code></p>`);
                     $console.append($line);
                 });
             }catch(err){
