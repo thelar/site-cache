@@ -4,8 +4,10 @@ let status = 'Loading';
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const axios = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
+const path_to_ajax = 'https://4x4tyres.co.uk/';
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -67,9 +69,23 @@ function run(){
     // Run app here
     changeStatus('Running');
     app_console('Started');
+    get_manufacturers();
 }
 
 function stop(){
     changeStatus('Waiting');
     app_console('Stopped')
+}
+
+function get_manufacturers(){
+    app_console('Getting manufacturers');
+    const sendGetRequest = async() => {
+        try {
+            const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
+            app_console('SUCCESS: ');
+        }catch(err){
+            app_console('ERROR: ' + err.code);
+        }
+    }
+    sendGetRequest();
 }
