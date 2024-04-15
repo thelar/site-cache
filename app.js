@@ -26,7 +26,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+
+    socket.on('tell_app', (instruction) => {
+        status = instruction;
+    });
 });
+
 
 server.listen(3000, function () {
     console.log('Example app listening on port 3000!');

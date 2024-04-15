@@ -11,9 +11,10 @@
         jQuery(document).ready(($) => {
             let $status = $('#status');
             let $start = $('#start');
+            let socket;
 
             try{
-                let socket = io();
+                socket = io();
                 socket.on('status_broadcast', function(msg) {
                     console.log(msg);
                     $status.text(msg.status);
@@ -25,6 +26,7 @@
             $start.on('click', () => {
                 console.log('start clicked');
                 $start.prop('disabled', true);
+                socket.emit('tell_app', 'run');
             });
         });
     </script>
