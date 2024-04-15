@@ -7,7 +7,7 @@ const { Server } = require("socket.io");
 const axios = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
-const path_to_ajax = process.env === 'production' ? 'https://4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
+const path_to_ajax = process.env === 'production' ? 'https://staging.4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
