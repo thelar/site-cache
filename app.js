@@ -82,7 +82,7 @@ function get_manufacturers(){
     const sendGetRequest = async() => {
         try {
             const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
-            app_console('SUCCESS: ');
+            app_console('SUCCESS: ' + resp.data);
         }catch(err){
             app_console('ERROR: ' + err.code);
         }
