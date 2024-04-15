@@ -109,6 +109,20 @@ async function get_chassis(manufacturer_id){
         app_console(`Chassis for manufacturer ID: ${manufacturer_id}`);
         resp.data.results.chassis.forEach(chassis => {
             app_console(`${chassis.display_name} (Chassis ID - ${chassis.id})`);
+            get_wheels(chassis.id, chassis.display_name);
         });
+    }
+}
+
+async function get_wheels(chassis_id, vehicle){
+    try {
+        const resp = await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${chassis_id}&vehicle=${vehicle}`);
+
+        if(resp.status===200&&resp.data.results.status==='success'){
+            app_console(`Wheels for chassis ID: ${chassis_id}`);
+            app_console(`${resp.data.results.wheels}`);
+        }
+    }catch(err){
+        app_console('ERROR: ' + err.code);
     }
 }
