@@ -19,9 +19,9 @@
                 socket.on('status_broadcast', function(status) {
                     $status.text(status);
                     if(status==='Waiting'){
-                        $status.prop('disabled', false);
+                        $start.prop('disabled', false);
                     }else{
-                        $status.prop('disabled', true);
+                        $start.prop('disabled', true);
                     }
                 });
             }catch(err){
