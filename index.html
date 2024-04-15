@@ -11,23 +11,30 @@
         jQuery(document).ready(($) => {
             let $status = $('#status');
             let $start = $('#start');
+            let $reset = $('#reset');
             let socket;
 
             try{
                 socket = io();
-                socket.on('status_broadcast', function(msg) {
-                    console.log(msg);
-                    $status.text(msg.status);
+                socket.on('status_broadcast', function(status) {
+                    $status.text(status);
+                    if(status==='Waiting'){
+                        $status.prop('disabled', false);
+                    }else{
+                        $status.prop('disabled', true);
+                    }
                 });
             }catch(err){
                 console.log('socket.io could not be initialized');
             }
 
             $start.on('click', () => {
-                console.log('start clicked');
-                $start.prop('disabled', true);
                 socket.emit('tell_app', 'run');
             });
+
+            $reset.on('click', () => {
+                socket.emit('tell_app', 'reset');
+            })
         });
     </script>
 </head>
@@ -35,5 +42,6 @@
     <div id="status">Loading...</div>
 
     <button id="start" type="button">Start</button>
+    <button id="reset" type="button">Reset</button>
 </body>
 </html>

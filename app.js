@@ -28,35 +28,36 @@ io.on('connection', (socket) => {
     });
 
     socket.on('tell_app', (instruction) => {
-        status = instruction;
+        switch(instruction){
+            case 'run':
+                run();
+                changeStatus('Running')
+                break;
+            case 'reset':
+                changeStatus('Waiting');
+                break;
+            default:
+                break;
+        }
     });
 });
-
 
 server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-setInterval(() => {
+/*setInterval(() => {
     io.emit('status_broadcast', {
         message: 'ping',
         status: status,
     })
-}, 1000);
+}, 1000);*/
 
+function changeStatus(to){
+    status = to;
+    io.emit('status_broadcast', status);
+}
 
-
-
-/*app.get('/start', (req, res) => {
-    const sendGetRequest = async() => {
-        try {
-            const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
-            console.log(resp.data);
-            res.json(resp.data);
-        }catch(err){
-            console.log(err);
-            res.send('ERROR: ' + err.code);
-        }
-    }
-    sendGetRequest();
-});*/
+function run(){
+    // Run app here
+}
