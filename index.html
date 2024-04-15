@@ -12,6 +12,7 @@
             let $status = $('#status');
             let $start = $('#start');
             let $reset = $('#reset');
+            let $console = $('#console');
             let socket;
 
             try{
@@ -23,6 +24,11 @@
                     }else{
                         $start.prop('disabled', true);
                     }
+                });
+                socket.on('console_update', (msg) => {
+                    let currentDate = '[' + new Date().toUTCString() + '] ';
+                    let $line = $(`<p>[${currentDate}] - ${msg}</p>`);
+                    $console.append($line);
                 });
             }catch(err){
                 console.log('socket.io could not be initialized');
@@ -39,8 +45,11 @@
     </script>
 </head>
 <body>
-    <div id="status">Loading...</div>
+    <div>Status: <div id="status">Loading...</div></div>
     <button id="start" type="button" disabled>Start</button>
     <button id="reset" type="button">Reset</button>
+    <div id="console" style="max-width: 500px; height: 300px; border: 1px solid black; overflow: auto">
+
+    </div>
 </body>
 </html>
