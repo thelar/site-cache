@@ -33,6 +33,7 @@ io.on('connection', (socket) => {
                 run();
                 break;
             case 'reset':
+                stop();
                 break;
             default:
                 break;
