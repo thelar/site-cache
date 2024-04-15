@@ -55,7 +55,7 @@ server.listen(3000, function () {
     })
 }, 1000);*/
 
-function console(log){
+function app_console(log){
     io.emit('console_update', log);
 }
 
@@ -66,5 +66,5 @@ function changeStatus(to){
 
 function run(){
     // Run app here
-    console('started');
+    app_console('started');
 }
