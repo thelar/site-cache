@@ -31,10 +31,8 @@ io.on('connection', (socket) => {
         switch(instruction){
             case 'run':
                 run();
-                changeStatus('Running')
                 break;
             case 'reset':
-                changeStatus('Waiting');
                 break;
             default:
                 break;
@@ -66,5 +64,11 @@ function changeStatus(to){
 
 function run(){
     // Run app here
-    app_console('started');
+    changeStatus('Running');
+    app_console('Started');
+}
+
+function stop(){
+    changeStatus('Waiting');
+    app_console('Stopped')
 }
