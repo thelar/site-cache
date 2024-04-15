@@ -1,6 +1,6 @@
 require('dotenv').config();
 const app = require('express')();
-let status = 'Waiting';
+let status = 'Loading';
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -40,6 +40,8 @@ io.on('connection', (socket) => {
                 break;
         }
     });
+
+    changeStatus('Waiting');
 });
 
 server.listen(3000, function () {
