@@ -115,6 +115,7 @@ async function get_chassis(manufacturer_id){
 }
 
 async function get_wheels(chassis_id, vehicle){
+    app_console(`Getting wheels for ${vehicle}`);
     try {
         const resp = await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${chassis_id}&vehicle=${vehicle}`);
 
