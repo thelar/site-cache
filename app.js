@@ -33,7 +33,10 @@ server.listen(3000, function () {
 });
 
 setInterval(() => {
-    io.emit('status_broadcast', 'ping')
+    io.emit('status_broadcast', {
+        message: 'ping',
+        status: status,
+    })
 }, 1000);
 
 
