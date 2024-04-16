@@ -1,13 +1,18 @@
 require('dotenv').config();
 const app = require('express')();
-let status = 'Loading';
+let status;
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const axios = require("axios");
+const {isAxiosError} = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
 const path_to_ajax = process.env.NODE_ENV === 'production' ? 'https://staging.4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
+
+// Application data
+let manufacturers = [];
+let chassis = [];
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -41,8 +46,11 @@ io.on('connection', (socket) => {
                 break;
         }
     });
-
-    changeStatus('Waiting');
+    if(typeof status === 'undefined'){
+        changeStatus('Waiting');
+    }else{
+        app_console('Connected');
+    }
 });
 
 server.listen(3000, function () {
@@ -58,6 +66,7 @@ server.listen(3000, function () {
 
 function app_console(log){
     io.emit('console_update', log);
+    io.emit('status_broadcast', status);
 }
 
 function changeStatus(to){
@@ -74,7 +83,9 @@ function run(){
 
 function stop(){
     changeStatus('Waiting');
-    app_console('Stopped')
+    app_console('Stopped');
+    chassis = [];
+    manufacturers = [];
 }
 
 function get_manufacturers(){
@@ -85,10 +96,13 @@ function get_manufacturers(){
             const resp = await axios.get(path_to_ajax + 'fbf_cache?action=get_manufacturers');
             if(resp.status===200&&resp.data.results.status==='success'){
                 app_console('SUCCESS');
-                let manufacturers = [];
                 for(let manufacturer_id in resp.data.results.manufacturers){
                     app_console(`${resp.data.results.manufacturers[manufacturer_id].name}: ${manufacturer_id}`);
-                    get_chassis(manufacturer_id);
+                    //get_chassis(manufacturer_id);
+                    manufacturers.push({
+                        id: manufacturer_id,
+                        name: resp.data.results.manufacturers[manufacturer_id].name,
+                    });
                 }
             }else{
                 if(resp.status!==200){
@@ -100,31 +114,103 @@ function get_manufacturers(){
         }catch(err){
             app_console('ERROR: ' + err.code);
         }
+
+        app_console('Finished getting manufacturers');
+        get_all_chassis();
     }
     sendGetRequest();
 }
 
-async function get_chassis(manufacturer_id){
-    const resp = await axios.get(path_to_ajax + `fbf_cache?action=get_chassis&id=${manufacturer_id}`);
-    if(resp.status===200&&resp.data.results.status==='success'){
-        app_console(`Chassis for manufacturer ID: ${manufacturer_id}`);
-        resp.data.results.chassis.forEach(chassis => {
-            app_console(`${chassis.display_name} (Chassis ID - ${chassis.id})`);
-            get_wheels(chassis.id, chassis.display_name);
-        });
-    }
-}
+function get_all_chassis(){
+    let errors = false;
+    // Loop through manufacuturers
+    /*for(let i=0;i<manufacturers.length;i++){
+    //manufacturers.forEach((manufacturer) => {
+        app_console(`Getting chassis for ${manufacturers[i].name}`)
+        get_chassis(manufacturers[i].id);
+    };*/
 
-async function get_wheels(chassis_id, vehicle){
-    app_console(`Getting wheels for ${vehicle}`);
-    try {
-        const resp = await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${chassis_id}&vehicle=${vehicle}`);
-
-        if(resp.status===200&&resp.data.results.status==='success'){
-            app_console(`Wheels for chassis ID: ${chassis_id}`);
-            app_console(`${resp.data.results.wheels}`);
+    /*const main = async() => {
+        let items = [0, 1, 2, 3];
+        for(let i=0;i<items.length;i++){
+            await getData(items[i], 1000 * (5 - items[i]));
         }
+        app_console('END OF MAIN');
+    }*/
+
+    const main = async() => {
+        if(manufacturers.length){
+            for(let i=0;i<manufacturers.length;i++){
+                let resp = await getChassisData(manufacturers[i].id);
+
+                if(isAxiosError(resp)){
+                    app_console(`ERROR: ${resp}`);
+                    errors = true;
+                    break;
+                }else{
+                    app_console(`Got chassis data for manufacturer id: ${manufacturers[i].id}, execution time: ${resp.data.results.end_time - resp.data.results.start_time} seconds`);
+
+                    resp.data.results.chassis.forEach(vehicle_chassis => {
+                        chassis.push({
+                            name: vehicle_chassis.display_name,
+                            id: vehicle_chassis.id,
+                        });
+                    });
+                }
+            }
+            app_console('GET ALL CHASSIS DONE');
+        }
+    };
+    main().then((res) => {
+        // Here is when we start getting wheels
+        if(!errors){
+            app_console('Now get wheels');
+            get_all_wheels();
+        }
+    });
+}
+
+function get_all_wheels(){
+    let errors;
+    /*chassis.forEach((vehicle_chassis) => {
+        app_console(`Chassis: ${vehicle_chassis.name}`);
+    });*/
+    const main = async () => {
+        if(chassis.length){
+            for(let i=0;i<chassis.length;i++){
+                app_console(`Getting wheels for chassis id ${chassis[i].id} - ${chassis[i].name} [wheel ${i + 1} of ${chassis.length}]`);
+                let resp = await getWheelData(chassis[i].id, chassis[i].name);
+
+                if(isAxiosError(resp)) {
+                    app_console(`ERROR: ${resp}`);
+                    errors = true;
+                    break;
+                }else{
+                    app_console(`Done: execution time: ${resp.data.results.timings.overall}`);
+                    console.log(resp.data.results.timings);
+                }
+            }
+        }
+    }
+    main().then((res) => {
+        app_console('DONE!');
+        stop();
+    });
+}
+
+async function getChassisData(id){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=get_chassis&id=${id}`);
     }catch(err){
-        app_console('ERROR: ' + err.code);
+        return err;
     }
 }
+
+async function getWheelData(id, name){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${id}&vehicle=${name}`);
+    }catch(err){
+        return err;
+    }
+}
+
