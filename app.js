@@ -8,6 +8,7 @@ const axios = require("axios");
 const {isAxiosError} = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
+const cron = require('node-cron');
 const sites = {
     prod: 'https://4x4tyres.co.uk/',
     staging: 'https://staging.4x4tyres.co.uk/',
@@ -93,6 +94,11 @@ server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
+cron.schedule('0 1 * * *', () => {
+    app_console('CRON');
+    run();
+});
+
 function app_console(log){
     io.emit('console_update', log);
     io.emit('status_broadcast', {
@@ -113,10 +119,14 @@ function changeStatus(to){
 
 function run(){
     // Run app here
-    changeStatus('Running');
-    app_console('Started');
-    start = new Date().toUTCString();
-    get_manufacturers();
+    if(status!=='Running'){
+        changeStatus('Running');
+        app_console('Started');
+        start = new Date().toUTCString();
+        get_manufacturers();
+    }else{
+        app_console('Cannot start app when status is already Running');
+    }
 }
 
 function stop(){
