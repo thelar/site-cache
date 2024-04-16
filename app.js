@@ -176,7 +176,7 @@ function get_all_chassis(){
                 if(isAxiosError(resp)){
                     app_console(`ERROR: ${resp}`);
                     errors = true;
-                    break;
+                    //break;
                 }else{
                     app_console(`Got chassis data for manufacturer id: ${manufacturers[i].id}, execution time: ${resp.data.results.end_time - resp.data.results.start_time} seconds`);
 
@@ -214,7 +214,7 @@ function get_all_wheels(){
                 if(isAxiosError(resp)) {
                     app_console(`ERROR: ${resp}`);
                     errors = true;
-                    break;
+                    //break;
                 }else{
                     if(resp.data.results.status==='error'){
                         wheel_search_errors.push({
