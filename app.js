@@ -10,7 +10,7 @@ const base = '/sitecache';
 const io = new Server(server);
 const sites = {
     prod: 'https://4x4tyres.co.uk/',
-    staging: 'https://staging.4x4tyres.co.uk',
+    staging: 'https://staging.4x4tyres.co.uk/',
 }
 let site = 'production';
 let path_to_ajax;
