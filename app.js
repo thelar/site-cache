@@ -11,9 +11,12 @@ const io = new Server(server);
 const path_to_ajax = process.env.NODE_ENV === 'production' ? 'https://staging.4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
 
 // Application data
+let last_run;
+let start;
 let manufacturers = [];
 let chassis = [];
-let wheel_errors = [];
+let wheel_search_errors = [];
+let end;
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -42,6 +45,9 @@ io.on('connection', (socket) => {
                 break;
             case 'reset':
                 stop();
+                break;
+            case 'print_last_stats':
+                get_last_stats();
                 break;
             default:
                 break;
@@ -79,6 +85,7 @@ function run(){
     // Run app here
     changeStatus('Running');
     app_console('Started');
+    start = new Date().toUTCString();
     get_manufacturers();
 }
 
@@ -87,6 +94,28 @@ function stop(){
     app_console('Stopped');
     chassis = [];
     manufacturers = [];
+    wheel_search_errors = [];
+    start = '';
+    end = '';
+}
+
+function get_last_stats(){
+    if(typeof last_run === 'object'){
+        app_console('LAST RUN STATS:');
+        app_console(`Started: ${last_run.start}`);
+        app_console(`Ended: ${last_run.end}`);
+        app_console(`Chassis count: ${last_run.chassis_count}`);
+        if(last_run.hasOwnProperty('errors')){
+            if(last_run.errors.length){
+                app_console('Errors:');
+                last_run.errors.forEach((error) => {
+                    app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
+                });
+            }
+        }
+    }else{
+        app_console('NO LAST RUN STATS TO SHOW');
+    }
 }
 
 function get_manufacturers(){
@@ -188,7 +217,7 @@ function get_all_wheels(){
                     break;
                 }else{
                     if(resp.data.results.status==='error'){
-                        wheel_errors.push({
+                        wheel_search_errors.push({
                             id: chassis[i].id,
                             name: chassis[i].name,
                             error: resp.data.results.error,
@@ -204,12 +233,19 @@ function get_all_wheels(){
     }
     main().then((res) => {
         app_console('DONE!');
-        if(wheel_errors.length){
+        if(wheel_search_errors.length){
             app_console('ERRORS:');
-            wheel_errors.forEach((error) => {
+            wheel_search_errors.forEach((error) => {
                 app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
             });
         }
+        end = new Date().toUTCString();
+        last_run = {
+            start: start,
+            end: end,
+            errors: wheel_search_errors,
+            chassis_count: chassis.length,
+        };
         stop();
     });
 }

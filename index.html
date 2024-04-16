@@ -12,6 +12,7 @@
             let $status = $('#status');
             let $start = $('#start');
             let $reset = $('#reset');
+            let $last = $('#last');
             let $console = $('#console');
             let $messages = $console.find('.messages');
             let socket;
@@ -45,7 +46,11 @@
 
             $reset.on('click', () => {
                 socket.emit('tell_app', 'reset');
-            })
+            });
+
+            $last.on('click', () => {
+                socket.emit('tell_app', 'print_last_stats');
+            });
         });
     </script>
 </head>
@@ -53,6 +58,7 @@
     <div>Status: <span id="status">Loading...</span></div>
     <button id="start" type="button" disabled>Start</button>
     <button id="reset" type="button">Reset</button>
+    <button id="last" type="button">Get last run stats</button>
     <div id="console" style="max-width: 500px; height: 300px; border: 1px solid black; overflow: auto; padding: 8px; margin-top: 1em;">
         <div class="messages"></div>
     </div>
