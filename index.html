@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test HTML file</title>
+    <title>Wheel Search site cache</title>
     <script src="/socket.io/socket.io.js"></script>
     <script
             src="https://code.jquery.com/jquery-3.4.1.min.js"
@@ -15,18 +15,26 @@
             let $last = $('#last');
             let $console = $('#console');
             let $clear = $('#clear');
+            let $site = $('#site');
             let $messages = $console.find('.messages');
             let socket;
 
             try{
                 socket = io();
                 socket.on('status_broadcast', function(status) {
-                    $status.text(status);
-                    if(status==='Waiting'){
+                    console.log(status);
+                    $status.text(status.status);
+                    if(status.status==='Waiting'){
                         $start.prop('disabled', false);
                     }else{
                         $start.prop('disabled', true);
                     }
+                    if(status.env==='development'){
+                        $site.prop('disabled', true);
+                    }else{
+                        $site.prop('disabled', false);
+                    }
+                    $site.val(status.site);
                 });
                 socket.on('console_update', (msg) => {
                     let currentDate = '[' + new Date().toUTCString() + '] ';
@@ -42,25 +50,33 @@
             }
 
             $start.on('click', () => {
-                socket.emit('tell_app', 'run');
+                socket.emit('tell_app', {command: 'run'});
             });
 
             $reset.on('click', () => {
-                socket.emit('tell_app', 'reset');
+                socket.emit('tell_app', {command: 'reset'});
             });
 
             $last.on('click', () => {
-                socket.emit('tell_app', 'print_last_stats');
+                socket.emit('tell_app', {command: 'print_last_stats'});
             });
 
             $clear.on('click', () => {
                 $messages.empty();
             });
+
+            $site.on('change', () => {
+                socket.emit('tell_app', {command: 'change_site', to: $(this).val()});
+            })
         });
     </script>
 </head>
 <body>
-    <div>Status: <span id="status">Loading...</span></div>
+    <div style="margin-bottom: 0.5em;">Status: <span id="status">Loading...</span></div>
+    <div style="margin-bottom: 0.5em;">Which site: <select id="site">
+        <option value="staging">Staging</option>
+        <option value="production">Production</option>
+    </select></div>
     <button id="start" type="button" disabled>Start</button>
     <button id="reset" type="button">Reset</button>
     <button id="last" type="button">Get last run stats</button>

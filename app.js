@@ -8,7 +8,19 @@ const axios = require("axios");
 const {isAxiosError} = require("axios");
 const base = '/sitecache';
 const io = new Server(server);
-const path_to_ajax = process.env.NODE_ENV === 'production' ? 'https://staging.4x4tyres.co.uk/' : 'https://4x4tyres.localhost/';
+const sites = {
+    prod: 'https://4x4tyres.co.uk/',
+    staging: 'https://staging.4x4tyres.co.uk',
+}
+let site = 'production';
+let path_to_ajax;
+if(process.env.NODE_ENV==='development'){
+    path_to_ajax = 'https://4x4tyres.localhost/';
+}else if(site==='production'){
+    path_to_ajax = sites.prod;
+}else{
+    path_to_ajax = sites.staging;
+}
 
 // Application data
 let last_run;
@@ -39,7 +51,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('tell_app', (instruction) => {
-        switch(instruction){
+        switch(instruction.command){
             case 'run':
                 run();
                 break;
@@ -48,6 +60,23 @@ io.on('connection', (socket) => {
                 break;
             case 'print_last_stats':
                 get_last_stats();
+                break;
+            case 'change_site':
+                if(process.env.NODE_ENV!=='development'){
+                    if(status!=='Running'){
+                        site = instruction.to;
+                        if(site==='production'){
+                            path_to_ajax = sites.prod;
+                        }else{
+                            path_to_ajax = sites.staging;
+                        }
+                        app_console(`Site changed to ${site}`);
+                    }else{
+                        app_console('Cannot change site when status is Running');
+                    }
+                }else{
+                    app_console('Cannot change site in development environment');
+                }
                 break;
             default:
                 break;
@@ -64,21 +93,22 @@ server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-/*setInterval(() => {
-    io.emit('status_broadcast', {
-        message: 'ping',
-        status: status,
-    })
-}, 1000);*/
-
 function app_console(log){
     io.emit('console_update', log);
-    io.emit('status_broadcast', status);
+    io.emit('status_broadcast', {
+        status: status,
+        env: process.env.NODE_ENV,
+        site: site,
+    });
 }
 
 function changeStatus(to){
     status = to;
-    io.emit('status_broadcast', status);
+    io.emit('status_broadcast', {
+        status: status,
+        env: process.env.NODE_ENV,
+        site: site,
+    });
 }
 
 function run(){
