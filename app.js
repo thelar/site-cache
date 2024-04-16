@@ -13,6 +13,7 @@ const path_to_ajax = process.env.NODE_ENV === 'production' ? 'https://staging.4x
 // Application data
 let manufacturers = [];
 let chassis = [];
+let wheel_errors = [];
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -178,7 +179,7 @@ function get_all_wheels(){
     const main = async () => {
         if(chassis.length){
             for(let i=0;i<chassis.length;i++){
-                app_console(`Getting wheels for chassis id ${chassis[i].id} - ${chassis[i].name} [wheel ${i + 1} of ${chassis.length}]`);
+                app_console(`Getting wheels for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
                 let resp = await getWheelData(chassis[i].id, chassis[i].name);
 
                 if(isAxiosError(resp)) {
@@ -186,14 +187,29 @@ function get_all_wheels(){
                     errors = true;
                     break;
                 }else{
-                    app_console(`Done: execution time: ${resp.data.results.timings.overall}`);
-                    console.log(resp.data.results.timings);
+                    if(resp.data.results.status==='error'){
+                        wheel_errors.push({
+                            id: chassis[i].id,
+                            name: chassis[i].name,
+                            error: resp.data.results.error,
+                        })
+                    }else{
+                        app_console(`Done: execution time: ${resp.data.results.timings.overall}`);
+                        console.log(resp.data.results.timings);
+                    }
+
                 }
             }
         }
     }
     main().then((res) => {
         app_console('DONE!');
+        if(wheel_errors.length){
+            app_console('ERRORS:');
+            wheel_errors.forEach((error) => {
+                app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
+            });
+        }
         stop();
     });
 }
