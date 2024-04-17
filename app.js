@@ -255,6 +255,11 @@ function get_all_wheels(){
                 if(isAxiosError(resp)) {
                     app_console(`ERROR: ${resp}`);
                     errors = true;
+                    wheel_search_errors.push({
+                        id: chassis[i].id,
+                        name: chassis[i].name,
+                        error: resp,
+                    });
                     //break;
                 }else{
                     if(resp.data.results.status==='error'){
@@ -274,7 +279,7 @@ function get_all_wheels(){
     main().then((res) => {
         app_console('DONE!');
         if(wheel_search_errors.length){
-            app_console('ERRORS:');
+            app_console(`${wheel_search_errors.length} ERRORS:`);
             wheel_search_errors.forEach((error) => {
                 app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
             });
