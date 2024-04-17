@@ -224,6 +224,7 @@ function get_all_chassis(){
                         chassis.push({
                             name: vehicle_chassis.display_name,
                             id: vehicle_chassis.id,
+                            manufacturer_id: manufacturers[i].id,
                         });
                     });
                 }
@@ -248,8 +249,8 @@ function get_all_wheels(){
     const main = async () => {
         if(chassis.length){
             for(let i=0;i<chassis.length;i++){
-                app_console(`Getting wheels for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
-                let resp = await getWheelData(chassis[i].id, chassis[i].name);
+                app_console(`Getting wheels and wheel sizes for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
+                let resp = await getWheelData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id);
 
                 if(isAxiosError(resp)) {
                     app_console(`ERROR: ${resp}`);
@@ -263,8 +264,7 @@ function get_all_wheels(){
                             error: resp.data.results.error,
                         })
                     }else{
-                        app_console(`Done: execution time: ${resp.data.results.timings.overall}`);
-                        console.log(resp.data.results.timings);
+                        app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
                     }
 
                 }
@@ -298,9 +298,9 @@ async function getChassisData(id){
     }
 }
 
-async function getWheelData(id, name){
+async function getWheelData(id, name, manufacturer_id){
     try{
-        return await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${id}&vehicle=${name}`);
+        return await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${id}&vehicle=${name}&manufacturer_id=${manufacturer_id}`);
     }catch(err){
         return err;
     }
