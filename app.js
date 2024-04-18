@@ -147,7 +147,7 @@ function get_last_stats(){
         app_console(`Chassis count: ${last_run.chassis_count}`);
         if(last_run.hasOwnProperty('errors')){
             if(last_run.errors.length){
-                app_console('Errors:');
+                app_console(`${last_run.errors.length} Errors:`);
                 last_run.errors.forEach((error) => {
                     app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
                 });
