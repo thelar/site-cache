@@ -94,7 +94,7 @@ server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-cron.schedule('0 1 * * *', () => {
+cron.schedule('0 8 * * *', () => {
     app_console('CRON');
     run();
 });
