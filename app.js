@@ -29,6 +29,7 @@ let start;
 let manufacturers = [];
 let chassis = [];
 let wheel_search_errors = [];
+let wheel_size_errors = [];
 let end;
 
 app.get(base + '/test', (req, res) => {
@@ -135,6 +136,7 @@ function stop(){
     chassis = [];
     manufacturers = [];
     wheel_search_errors = [];
+    wheel_size_errors = [];
     start = '';
     end = '';
 }
@@ -270,14 +272,22 @@ function get_all_wheels(){
                         })
                     }else{
                         app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
+                        let wheel_sizes = resp.data.results.wheels_sizes;
+                        let sizes = [];
+                        chassis[i].wheel_sizes = wheel_sizes;
                     }
-
                 }
             }
         }
     }
     main().then((res) => {
-        app_console('DONE!');
+        // Here is when we start getting wheels
+        if(!errors){
+            app_console('Now get Package Builder wheels for sizes');
+            get_pb_wheel_sizes();
+        }
+
+        /*app_console('DONE!');
         if(wheel_search_errors.length){
             app_console(`${wheel_search_errors.length} ERRORS:`);
             wheel_search_errors.forEach((error) => {
@@ -291,8 +301,59 @@ function get_all_wheels(){
             errors: wheel_search_errors,
             chassis_count: chassis.length,
         };
+        stop();*/
+    });
+}
+
+function get_pb_wheel_sizes(){
+    let errors;
+    let a = 1;
+
+    const main = async () => {
+        if(chassis.length) {
+            for (let i = 0; i < chassis.length; i++) {
+                for (const size in chassis[i].wheel_sizes){
+                    app_console(`Getting PB Wheels for Wheels size ${size} for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
+                    let resp = await getWheelSizeData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id, size);
+
+                    if(isAxiosError(resp)) {
+                        app_console(`ERROR: ${resp}`);
+                        errors = true;
+                        wheel_size_errors.push({
+                            id: chassis[i].id,
+                            name: chassis[i].name,
+                            size: size,
+                            error: resp,
+                        });
+                        //break;
+                    }else{
+                        if(resp.data.results.status==='error'){
+                            wheel_search_errors.push({
+                                id: chassis[i].id,
+                                name: chassis[i].name,
+                                error: resp.data.results.error,
+                            });
+                        }else{
+                            app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    main().then((res) => {
+        console.log('finished');
+
+        end = new Date().toUTCString();
+        last_run = {
+            start: start,
+            end: end,
+            errors: wheel_search_errors,
+            chassis_count: chassis.length,
+        };
         stop();
     });
+
 }
 
 async function getChassisData(id){
@@ -307,6 +368,14 @@ async function getWheelData(id, name, manufacturer_id){
     try{
         return await axios.get(path_to_ajax + `fbf_cache?action=get_wheels&id=${id}&vehicle=${name}&manufacturer_id=${manufacturer_id}`);
     }catch(err){
+        return err;
+    }
+}
+
+async function getWheelSizeData(id, name, manufacturer_id, wheel_size){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=get_pb_wheels_for_size&id=${id}&vehicle=${name}&manufacturer_id=${manufacturer_id}&wheel_size=${wheel_size}`);
+    }catch (err){
         return err;
     }
 }
