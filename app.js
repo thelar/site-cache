@@ -278,14 +278,26 @@ function get_all_wheels(){
                     }
                 }
             }
+            app_console('GET ALL WHEELS DONE');
         }
     }
     main().then((res) => {
         // Here is when we start getting wheels
-        if(!errors){
+
+        if(wheel_search_errors.length){
+            app_console(`${wheel_search_errors.length} ERRORS:`);
+            wheel_search_errors.forEach((error) => {
+                app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
+            });
+        }
+
+        app_console('Now get Package Builder wheels for sizes');
+        get_pb_wheel_sizes();
+
+        /*if(!errors){
             app_console('Now get Package Builder wheels for sizes');
             get_pb_wheel_sizes();
-        }
+        }*/
 
         /*app_console('DONE!');
         if(wheel_search_errors.length){
@@ -312,9 +324,10 @@ function get_pb_wheel_sizes(){
     const main = async () => {
         if(chassis.length) {
             for (let i = 0; i < chassis.length; i++) {
+                let wheel_counter = 1;
                 for (const size in chassis[i].wheel_sizes){
-                    app_console(`Getting PB Wheels for Wheels size ${size} for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
-                    let resp = await getWheelSizeData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id, size);
+                    app_console(`Getting PB Wheels for Wheels size ${chassis[i].wheel_sizes[size]}" for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}] [wheel ${wheel_counter} of ${Object.keys(chassis[i].wheel_sizes).length}]`);
+                    let resp = await getWheelSizeData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id, chassis[i].wheel_sizes[size]);
 
                     if(isAxiosError(resp)) {
                         app_console(`ERROR: ${resp}`);
@@ -322,33 +335,52 @@ function get_pb_wheel_sizes(){
                         wheel_size_errors.push({
                             id: chassis[i].id,
                             name: chassis[i].name,
-                            size: size,
+                            size: chassis[i].wheel_sizes[size],
                             error: resp,
                         });
                         //break;
                     }else{
                         if(resp.data.results.status==='error'){
-                            wheel_search_errors.push({
+                            wheel_size_errors.push({
                                 id: chassis[i].id,
                                 name: chassis[i].name,
+                                size: chassis[i].wheel_sizes[size],
                                 error: resp.data.results.error,
                             });
                         }else{
-                            app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
+                            app_console(`Done: execution time: ${resp.data.results.overall_timing}`);
                         }
                     }
+                    wheel_counter++;
                 }
             }
+            app_console('GET ALL WHEEL SIZES DONE');
         }
     }
     main().then((res) => {
         console.log('finished');
 
+        app_console('DONE!');
+        if(wheel_search_errors.length){
+            app_console(`${wheel_search_errors.length} WHEEL SEARCH ERRORS:`);
+            wheel_search_errors.forEach((error) => {
+                app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
+            });
+        }
+
+        if(wheel_size_errors.length){
+            app_console(`${wheel_size_errors.length} WHEEL SIZE ERRORS:`);
+            wheel_size_errors.forEach((error) => {
+                app_console(`${error.name} (id: ${error.id} - size: ${error.size}) Error: ${error.error}`);
+            });
+        }
+
         end = new Date().toUTCString();
         last_run = {
             start: start,
             end: end,
-            errors: wheel_search_errors,
+            wheel_search_errors: wheel_search_errors,
+            wheel_size_errors: wheel_size_errors,
             chassis_count: chassis.length,
         };
         stop();
