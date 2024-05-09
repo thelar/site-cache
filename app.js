@@ -30,6 +30,7 @@ let manufacturers = [];
 let chassis = [];
 let wheel_search_errors = [];
 let wheel_size_errors = [];
+let wheel_size_count = 0;
 let end;
 
 app.get(base + '/test', (req, res) => {
@@ -139,6 +140,7 @@ function stop(){
     wheel_size_errors = [];
     start = '';
     end = '';
+    wheel_size_count = 0;
 }
 
 function get_last_stats(){
@@ -147,10 +149,19 @@ function get_last_stats(){
         app_console(`Started: ${last_run.start}`);
         app_console(`Ended: ${last_run.end}`);
         app_console(`Chassis count: ${last_run.chassis_count}`);
-        if(last_run.hasOwnProperty('errors')){
-            if(last_run.errors.length){
-                app_console(`${last_run.errors.length} Errors:`);
-                last_run.errors.forEach((error) => {
+        app_console(`Wheel size count: ${last_run.wheel_size_count}`);
+        if(last_run.hasOwnProperty('wheel_search_errors')){
+            if(last_run.wheel_search_errors.length){
+                app_console(`${last_run.wheel_search_errors.length} Wheel search errors:`);
+                last_run.wheel_search_errors.forEach((error) => {
+                    app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
+                });
+            }
+        }
+        if(last_run.hasOwnProperty('wheel_size_errors')){
+            if(last_run.wheel_size_errors.length){
+                app_console(`${last_run.wheel_size_errors.length} Wheel size errors:`);
+                last_run.wheel_size_errors.forEach((error) => {
                     app_console(`${error.name} (id: ${error.id}) Error: ${error.error}`);
                 });
             }
@@ -319,8 +330,6 @@ function get_all_wheels(){
 
 function get_pb_wheel_sizes(){
     let errors;
-    let a = 1;
-
     const main = async () => {
         if(chassis.length) {
             for (let i = 0; i < chassis.length; i++) {
@@ -349,6 +358,7 @@ function get_pb_wheel_sizes(){
                             });
                         }else{
                             app_console(`Done: execution time: ${resp.data.results.overall_timing}`);
+                            wheel_size_count++;
                         }
                     }
                     wheel_counter++;
@@ -382,10 +392,10 @@ function get_pb_wheel_sizes(){
             wheel_search_errors: wheel_search_errors,
             wheel_size_errors: wheel_size_errors,
             chassis_count: chassis.length,
+            wheel_size_count: wheel_size_count,
         };
         stop();
     });
-
 }
 
 async function getChassisData(id){
