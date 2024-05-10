@@ -282,7 +282,7 @@ function get_all_wheels(){
                             error: resp.data.results.error,
                         })
                     }else{
-                        app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
+                        app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_nft_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
                         let wheel_sizes = resp.data.results.wheels_sizes;
                         let sizes = [];
                         chassis[i].wheel_sizes = wheel_sizes;
