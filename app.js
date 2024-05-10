@@ -335,7 +335,7 @@ function get_pb_wheel_sizes(){
             for (let i = 0; i < chassis.length; i++) {
                 let wheel_counter = 1;
                 for (const size in chassis[i].wheel_sizes){
-                    app_console(`Getting PB Wheels for Wheels size ${chassis[i].wheel_sizes[size]}" for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}] [wheel ${wheel_counter} of ${Object.keys(chassis[i].wheel_sizes).length}]`);
+                    app_console(`Getting PB Wheels for Wheel size ${chassis[i].wheel_sizes[size]}" for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}] [wheel size ${wheel_counter} of ${Object.keys(chassis[i].wheel_sizes).length}]`);
                     let resp = await getWheelSizeData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id, chassis[i].wheel_sizes[size]);
 
                     if(isAxiosError(resp)) {
