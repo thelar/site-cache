@@ -31,6 +31,9 @@ let chassis = [];
 let wheel_search_errors = [];
 let wheel_size_errors = [];
 let wheel_size_count = 0;
+let paused = false;
+let pause_start;
+let pause_length = 1;
 let end;
 
 app.get(base + '/test', (req, res) => {
@@ -80,6 +83,9 @@ io.on('connection', (socket) => {
                 }else{
                     app_console('Cannot change site in development environment');
                 }
+                break;
+            case 'pause':
+                pause();
                 break;
             default:
                 break;
@@ -140,10 +146,28 @@ function stop(){
     wheel_size_errors = [];
     start = '';
     end = '';
+    paused = false;
     wheel_size_count = 0;
 }
 
+function pause(){
+    paused = true;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function wait() {
+    for (let i = 0; i < pause_length * 60; i++) {
+        app_console(`Waiting ${i} of ${pause_length * 60} seconds...`);
+        await sleep(1000);
+    }
+    paused = false;
+}
+
 function get_last_stats(){
+
     if(typeof last_run === 'object'){
         app_console('LAST RUN STATS:');
         app_console(`Started: ${last_run.start}`);
@@ -222,13 +246,23 @@ function get_all_chassis(){
     }*/
 
     const main = async() => {
+
         if(manufacturers.length){
             for(let i=0;i<manufacturers.length;i++){
+                if(paused){
+                    await wait();
+                    app_console('Waiting done');
+                }
                 let resp = await getChassisData(manufacturers[i].id);
 
                 if(isAxiosError(resp)){
                     app_console(`ERROR: ${resp}`);
                     errors = true;
+                    if(resp.response.status===403){
+                        // rewind i by 1
+                        i = i - 1;
+                        paused = true; // 403 response indicates we've triggered rate cap on Boughto - need to pause for a number of minutes - defined by pause_length
+                    }
                     //break;
                 }else{
                     app_console(`Got chassis data for manufacturer id: ${manufacturers[i].id}, execution time: ${resp.data.results.end_time - resp.data.results.start_time} seconds`);
@@ -262,6 +296,11 @@ function get_all_wheels(){
     const main = async () => {
         if(chassis.length){
             for(let i=0;i<chassis.length;i++){
+                if(paused){
+                    await wait();
+                    app_console('Waiting done');
+                }
+
                 app_console(`Getting wheels and wheel sizes for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}]`);
                 let resp = await getWheelData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id);
 
@@ -273,6 +312,12 @@ function get_all_wheels(){
                         name: chassis[i].name,
                         error: resp,
                     });
+
+                    if(resp.response.status===403){
+                        // rewind i by 1
+                        i = i - 1;
+                        paused = true; // 403 response indicates we've triggered rate cap on Boughto - need to pause for a number of minutes - defined by pause_length
+                    }
                     //break;
                 }else{
                     if(resp.data.results.status==='error'){
@@ -333,7 +378,13 @@ function get_pb_wheel_sizes(){
     const main = async () => {
         if(chassis.length) {
             for (let i = 0; i < chassis.length; i++) {
+                if(paused){
+                    await wait();
+                    app_console('Waiting done');
+                }
+
                 let wheel_counter = 1;
+
                 for (const size in chassis[i].wheel_sizes){
                     app_console(`Getting PB Wheels for Wheel size ${chassis[i].wheel_sizes[size]}" for chassis id ${chassis[i].id} - ${chassis[i].name} [chassis ${i + 1} of ${chassis.length}] [wheel size ${wheel_counter} of ${Object.keys(chassis[i].wheel_sizes).length}]`);
                     let resp = await getWheelSizeData(chassis[i].id, chassis[i].name, chassis[i].manufacturer_id, chassis[i].wheel_sizes[size]);
@@ -347,6 +398,12 @@ function get_pb_wheel_sizes(){
                             size: chassis[i].wheel_sizes[size],
                             error: resp,
                         });
+                        if(resp.response.status===403){
+                            // rewind i by 1
+                            i = i - 1;
+                            paused = true; // 403 response indicates we've triggered rate cap on Boughto - need to pause for a number of minutes - defined by pause_length
+                        }
+
                         //break;
                     }else{
                         if(resp.data.results.status==='error'){
