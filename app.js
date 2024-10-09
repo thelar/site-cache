@@ -33,7 +33,7 @@ let wheel_size_errors = [];
 let wheel_size_count = 0;
 let paused = false;
 let pause_start;
-let pause_length = 1;
+let pause_length = 6;
 let end;
 
 app.get(base + '/test', (req, res) => {
