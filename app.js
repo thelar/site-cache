@@ -425,8 +425,6 @@ function get_pb_wheel_sizes(){
         }
     }
     main().then((res) => {
-        console.log('finished');
-
         app_console('DONE!');
         if(wheel_search_errors.length){
             app_console(`${wheel_search_errors.length} WHEEL SEARCH ERRORS:`);
@@ -442,6 +440,60 @@ function get_pb_wheel_sizes(){
             });
         }
 
+        app_console('Now store chassis fitment data in (wheel) product meta');
+        count_wheel_chassis_rows();
+
+        console.log('finished');
+
+
+
+        /*end = new Date().toUTCString();
+        last_run = {
+            start: start,
+            end: end,
+            wheel_search_errors: wheel_search_errors,
+            wheel_size_errors: wheel_size_errors,
+            chassis_count: chassis.length,
+            wheel_size_count: wheel_size_count,
+        };
+        stop();*/
+    });
+}
+
+function count_wheel_chassis_rows(){
+    let batch_size = 10;
+    let num_rows;
+    const count = async () => {
+        let resp = await getWheelChassisCount();
+        if(isAxiosError(resp)) {
+            app_console(`ERROR: ${resp}`);
+        }else{
+            app_console('Wheel chassis count done');
+            num_rows = resp.data.results.num_rows;
+            app_console('Num rows: ' + num_rows);
+        }
+    }
+    count().then((res) => {
+        store_wheel_chassis_data(num_rows, batch_size);
+    });
+}
+
+function store_wheel_chassis_data(num_rows, batch_size){
+    let num_batches = Math.ceil(num_rows/batch_size);
+    const store = async () => {
+        for(let i=0;i<num_batches;i++){
+            let resp = await storeWheelChassisData(i, batch_size);
+            if(isAxiosError(resp)) {
+                app_console(`ERROR: ${resp}`);
+            }else{
+                app_console(`Saved batch ${i} of ${num_batches}`);
+            }
+        }
+    }
+
+    store().then((res) => {
+        app_console('Store Wheel Chassis data DONE');
+
         end = new Date().toUTCString();
         last_run = {
             start: start,
@@ -453,7 +505,11 @@ function get_pb_wheel_sizes(){
         };
         stop();
     });
+
+
 }
+
+
 
 async function getChassisData(id){
     try{
@@ -475,6 +531,22 @@ async function getWheelSizeData(id, name, manufacturer_id, wheel_size){
     try{
         return await axios.get(path_to_ajax + `fbf_cache?action=get_pb_wheels_for_size&id=${id}&vehicle=${name}&manufacturer_id=${manufacturer_id}&wheel_size=${wheel_size}`);
     }catch (err){
+        return err;
+    }
+}
+
+async function getWheelChassisCount(){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=get_wheel_chassis_count`);
+    }catch(err){
+        return err;
+    }
+}
+
+async function storeWheelChassisData(batch, batch_size){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=store_wheel_chassis_data&batch=${batch}&batch_size=${batch_size}`);
+    }catch(err){
         return err;
     }
 }
