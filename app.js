@@ -494,6 +494,27 @@ function store_wheel_chassis_data(num_rows, batch_size){
     store().then((res) => {
         app_console('Store Wheel Chassis data DONE');
 
+        store_chassis_wheel_data();
+    });
+}
+
+function store_chassis_wheel_data(){
+    const store = async () => {
+        let resp = await storeChassisWheelData();
+        if(isAxiosError(resp)) {
+            app_console(`ERROR: ${resp}`);
+        }else{
+            if(resp.data.results.status==='success') {
+                app_console(`Saved chassis/wheel data`);
+            }else if(resp.data.results.status==='error'){
+                app_console(`ERROR: ${resp.data.results.action} - ${resp.data.results.error}`);
+            }
+        }
+    }
+
+    store().then((res) => {
+        app_console('Store Chassis/Wheel data DONE');
+
         end = new Date().toUTCString();
         last_run = {
             start: start,
@@ -505,9 +526,9 @@ function store_wheel_chassis_data(num_rows, batch_size){
         };
         stop();
     });
-
-
 }
+
+
 
 
 
@@ -546,6 +567,14 @@ async function getWheelChassisCount(){
 async function storeWheelChassisData(batch, batch_size){
     try{
         return await axios.get(path_to_ajax + `fbf_cache?action=store_wheel_chassis_data&batch=${batch}&batch_size=${batch_size}`);
+    }catch(err){
+        return err;
+    }
+}
+
+async function storeChassisWheelData(){
+    try{
+        return await axios.get(path_to_ajax + `fbf_cache?action=store_chassis_wheel_data`);
     }catch(err){
         return err;
     }
