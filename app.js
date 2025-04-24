@@ -102,7 +102,7 @@ server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-cron.schedule('30 8 * * *', () => {
+cron.schedule('*/2 * * * *', () => {
     app_console('CRON');
     if(status!=='Running'){
         app_console('CRON: run()');
