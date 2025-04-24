@@ -104,7 +104,10 @@ server.listen(3000, function () {
 
 cron.schedule('0 8 * * *', () => {
     app_console('CRON');
-    run();
+    if(status!=='Running'){
+        app_console('CRON: run()');
+        run();
+    }
 });
 
 function app_console(log){
