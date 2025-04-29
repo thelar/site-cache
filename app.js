@@ -102,7 +102,7 @@ server.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
 
-cron.schedule('*/2 * * * *', () => {
+cron.schedule('*/15 * * * *', () => {
     app_console('CRON');
     if(status!=='Running'){
         app_console('CRON: run()');
@@ -350,8 +350,8 @@ function get_all_wheels(){
             });
         }
 
-        app_console('Now get Package Builder wheels for sizes');
-        get_pb_wheel_sizes();
+        // - app_console('Now get Package Builder wheels for sizes');
+        // - get_pb_wheel_sizes();
 
         /*if(!errors){
             app_console('Now get Package Builder wheels for sizes');
@@ -373,6 +373,9 @@ function get_all_wheels(){
             chassis_count: chassis.length,
         };
         stop();*/
+
+        app_console('Now store chassis fitment data in (wheel) product meta');
+        count_wheel_chassis_rows();
     });
 }
 
@@ -443,8 +446,8 @@ function get_pb_wheel_sizes(){
             });
         }
 
-        app_console('Now store chassis fitment data in (wheel) product meta');
-        count_wheel_chassis_rows();
+        //app_console('Now store chassis fitment data in (wheel) product meta');
+        //count_wheel_chassis_rows();
 
         console.log('finished');
 
@@ -460,6 +463,17 @@ function get_pb_wheel_sizes(){
             wheel_size_count: wheel_size_count,
         };
         stop();*/
+
+        end = new Date().toUTCString();
+        last_run = {
+            start: start,
+            end: end,
+            wheel_search_errors: wheel_search_errors,
+            wheel_size_errors: wheel_size_errors,
+            chassis_count: chassis.length,
+            wheel_size_count: wheel_size_count,
+        };
+        stop();
     });
 }
 
@@ -518,7 +532,10 @@ function store_chassis_wheel_data(){
     store().then((res) => {
         app_console('Store Chassis/Wheel data DONE');
 
-        end = new Date().toUTCString();
+        app_console('Now get Package Builder wheels for sizes');
+        get_pb_wheel_sizes();
+
+        /*end = new Date().toUTCString();
         last_run = {
             start: start,
             end: end,
@@ -527,7 +544,7 @@ function store_chassis_wheel_data(){
             chassis_count: chassis.length,
             wheel_size_count: wheel_size_count,
         };
-        stop();
+        stop();*/
     });
 }
 
