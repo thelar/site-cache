@@ -16,7 +16,7 @@ const sites = {
 let site = 'production';
 let path_to_ajax;
 if(process.env.NODE_ENV==='development'){
-    path_to_ajax = 'https://4x4tyres.localhost/';
+    path_to_ajax = 'https://4x4tyres83.localhost/';
 }else if(site==='production'){
     path_to_ajax = sites.prod;
 }else{
