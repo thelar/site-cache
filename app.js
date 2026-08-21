@@ -287,6 +287,8 @@ function get_all_chassis(){
         if(!errors){
             app_console('Now get wheels');
             get_all_wheels();
+        }else{
+            stop();
         }
     });
 }
