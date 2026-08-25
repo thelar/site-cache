@@ -35,6 +35,7 @@ let paused = false;
 let pause_start;
 let pause_length = 6;
 let end;
+let boughto_api_counter = 0;
 
 app.get(base + '/test', (req, res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -116,6 +117,7 @@ function app_console(log){
         status: status,
         env: process.env.NODE_ENV,
         site: site,
+        boughto_api_counter: boughto_api_counter,
     });
 }
 
@@ -151,6 +153,7 @@ function stop(){
     end = '';
     paused = false;
     wheel_size_count = 0;
+    boughto_api_counter = 0;
 }
 
 function pause(){
@@ -260,7 +263,7 @@ function get_all_chassis(){
 
                 if(isAxiosError(resp)){
                     app_console(`ERROR: ${resp}`);
-                    errors = true;
+                    //errors = true;
                     if(resp.response.status===403){
                         // rewind i by 1
                         i = i - 1;
@@ -277,6 +280,8 @@ function get_all_chassis(){
                             manufacturer_id: manufacturers[i].id,
                         });
                     });
+
+                    boughto_api_counter++; // increment boughto hit count
                 }
             }
             app_console('GET ALL CHASSIS DONE');
@@ -332,6 +337,9 @@ function get_all_wheels(){
                             error: resp.data.results.error,
                         })
                     }else{
+                        if(resp.data.results.hasOwnProperty('api_counter')){
+                            boughto_api_counter+= resp.data.results.api_counter;
+                        }
                         app_console(`Done: execution time: ${resp.data.results.wheels_timings.overall + resp.data.results.wheels_nft_timings.overall + resp.data.results.wheels_sizes_timings.overall}`);
                         let wheel_sizes = resp.data.results.wheels_sizes;
                         let sizes = [];
@@ -422,6 +430,9 @@ function get_pb_wheel_sizes(){
                                 error: resp.data.results.error,
                             });
                         }else{
+                            if(resp.data.results.hasOwnProperty('api_counter')){
+                                boughto_api_counter+= resp.data.results.api_counter;
+                            }
                             app_console(`Done: execution time: ${resp.data.results.overall_timing}`);
                             wheel_size_count++;
                         }

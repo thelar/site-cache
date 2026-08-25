@@ -18,6 +18,7 @@
             let $site = $('#site');
             let $messages = $console.find('.messages');
             let $pause = $('#pause');
+            let $api_counter = $('#api_counter');
             let socket;
 
             try{
@@ -34,6 +35,9 @@
                         $site.prop('disabled', true);
                     }else{
                         $site.prop('disabled', false);
+                    }
+                    if(status.hasOwnProperty('boughto_api_counter')){
+                        $api_counter.text(status.boughto_api_counter);
                     }
                     $site.val(status.site);
                 });
@@ -90,5 +94,6 @@
     <div id="console" style="max-width: 500px; height: 300px; border: 1px solid black; overflow: auto; padding: 8px; margin-top: 1em;">
         <div class="messages"></div>
     </div>
+    <p>Boughto API request counter: <span id="api_counter">0</span></p>
 </body>
 </html>
